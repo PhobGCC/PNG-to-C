@@ -15,6 +15,12 @@ def brightness_step(pixel, output_steps, transparency):
         step = -1
     return step
 
+# index converter
+def ic(index):
+    if index == -1:
+        return 0
+    return index + 5
+
 class IndexedImage:
     def __init__(self, image, name, output_steps, max_indexes, transparency=True):
         self.name          = name
@@ -31,8 +37,11 @@ class IndexedImage:
     def create_header(self):
         output = ""
         output += f"// '{self.name}', {self.width}x{self.height}px\n"
-        output += f"// indexes: {self.indexes}\n"
-        output += f"const unsigned char {self.name.replace(' ', '_').replace('-', '_')}[] = " + "{\n"
+        output += f"// indexes: {self.indexes}\n".replace("-1", "transparent")
+        output += (f"const unsigned char ENC_IMG_{self.name.replace(' ', '_').replace('-', '_')}_Indexes[] = " +
+            "{ " + f"{ic(self.indexes[0])}, {ic(self.indexes[1])}, {ic(self.indexes[2])}, {ic(self.indexes[3])}, " +
+                   f"{ic(self.indexes[4])}, {ic(self.indexes[5])}, {ic(self.indexes[6])}, {ic(self.indexes[7])}" + " };\n")
+        output += f"const unsigned char ENC_IMG_{self.name.replace(' ', '_').replace('-', '_')}[] = " + "{\n"
 
         color = None
         run = 0
@@ -137,6 +146,6 @@ if __name__ == "__main__":
     parsed_args = arg_parser.parse_args(sys.argv[1:])
     if os.path.exists(parsed_args.inputFile):
         filestem = Path(parsed_args.inputFile).stem
-        converted = IndexedImage(Image.open(parsed_args.inputFile), filestem, 10, 8)
+        converted = IndexedImage(Image.open(parsed_args.inputFile), filestem, 11, 8)
 
     
